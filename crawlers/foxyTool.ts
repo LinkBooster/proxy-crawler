@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 
 import { getHtml } from "./../common";
+import { ICrawler } from "./crawlerInterfaces";
 
 export interface IFoxyToolProxyRowData {
   ip: string;
@@ -11,8 +12,8 @@ export interface IFoxyToolProxyRowData {
   type: string;
 }
 
-export class FoxyTool {
-  public static baseUrl = "http://foxtools.ru/Proxy";
+export class FoxyTool implements ICrawler {
+  public baseUrl = "http://foxtools.ru/Proxy";
   private html: string;
 
   public async getNumberOfPages(): Promise<number> {
@@ -25,12 +26,12 @@ export class FoxyTool {
   }
 
   public async parse(): Promise<IFoxyToolProxyRowData[]> {
-    await this.loadHtml(FoxyTool.baseUrl);
+    await this.loadHtml(this.baseUrl);
     const numberOfPages = await this.getNumberOfPages();
     let data: IFoxyToolProxyRowData[] = [];
 
     for (let page = 1; page <= numberOfPages; page++) {
-      await this.loadHtml(`${FoxyTool.baseUrl}?page=${page}`);
+      await this.loadHtml(`${this.baseUrl}?page=${page}`);
       const pageData = await this.parseProxiesFromPage();
       data = data.concat(pageData);
     }
@@ -64,7 +65,7 @@ export class FoxyTool {
     return data;
   }
 
-  private async loadHtml(url: string): Promise<void> {
+  public async loadHtml(url: string): Promise<void> {
     this.html = await getHtml(url);
   }
 }
