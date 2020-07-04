@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "prepare": "npm run build",
+    "preinstall": "npm run build",
     "build": "tsc",
     "start": "tsc && node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
