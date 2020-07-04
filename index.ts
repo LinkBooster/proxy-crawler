@@ -1,5 +1,3 @@
-import * as fs from "fs";
-
 import {
   advancedProxyAdapter,
   foxyToolAdapter,
@@ -7,45 +5,29 @@ import {
 } from "./adapters";
 import { AdvancedProxy, FoxyTool, Hidester } from "./crawlers";
 import { IProxyData } from "./interfaces/ProxyData";
-(async () => {
+
+async function getFoxyToolProxy(): Promise<IProxyData[]> {
   const foxyToolCrawler = new FoxyTool();
-  const advancedProxy = new AdvancedProxy();
-  const hidester = new Hidester();
-
   const foxyToolProxiesList = await foxyToolCrawler.parse();
-  console.log("foxyToolProxiesList : ", foxyToolProxiesList.length);
-
   const adaptedFoxyToolProxies = foxyToolAdapter(foxyToolProxiesList);
-  console.log("adaptedFoxyToolProxies : ", adaptedFoxyToolProxies.length);
 
+  return adaptedFoxyToolProxies;
+}
+
+async function getAdvancedProxy(): Promise<IProxyData[]> {
+  const advancedProxy = new AdvancedProxy();
   const advancedProxiesList = await advancedProxy.parse();
-  console.log("advancedProxiesList : ", advancedProxiesList.length);
-
   const adaptedAdvancedProxies = advancedProxyAdapter(advancedProxiesList);
-  console.log("adaptedAdvancedProxies : ", adaptedAdvancedProxies.length);
 
+  return adaptedAdvancedProxies;
+}
+
+async function getHidesterProxy(): Promise<IProxyData[]> {
+  const hidester = new Hidester();
   const hidesterProxy = await hidester.parse();
-  console.log("hidesterProxy : ", hidesterProxy.length);
-
   const adaptedHidesterProxies = hidesterAdapter(hidesterProxy);
-  console.log("adaptedHidesterProxies : ", adaptedHidesterProxies.length);
 
-  let allProxies = adaptedFoxyToolProxies.concat(adaptedAdvancedProxies);
-  allProxies = allProxies.concat(adaptedHidesterProxies);
-  console.log("allProxies : ", allProxies.length);
+  return adaptedHidesterProxies;
+}
 
-  const uniqueProxies: IProxyData[] = [];
-  const unique = new Set();
-
-  for (const proxy of allProxies) {
-    if (unique.has(proxy.ip)) {
-      continue;
-    }
-    uniqueProxies.push(proxy);
-    unique.add(proxy.ip);
-  }
-
-  console.log("total : ", uniqueProxies.length);
-  fs.writeFileSync("data.json", JSON.stringify(uniqueProxies, null, 2));
-  // console.log("unique size : ", unique.size);
-})();
+export { getFoxyToolProxy, getAdvancedProxy, getHidesterProxy };
